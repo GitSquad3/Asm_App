@@ -1,9 +1,9 @@
 package com.example.asm_final;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -11,34 +11,61 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ViewActivity extends AppCompatActivity {
-    private TextView tvStudentInfo;
-    private Button btnGoToSetBudget, btnLogoutToMain;
 
+    private TextView tvStudentInfo;
+    private Button btnGoToSetBudget;
+    private Button btnLogoutToMain;
     private DatabaseHelper dbHelper;
+    private String loggedInUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view);
 
-        // Initialize DatabaseHelper
-        dbHelper = new DatabaseHelper(this);
+        // Try to get username from Intent
+        loggedInUsername = getIntent().getStringExtra("USERNAME");
 
-        // Initialize views
+        // Fallback to SharedPreferences if Intent doesn't provide username
+        if (loggedInUsername == null || loggedInUsername.isEmpty()) {
+            SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+            loggedInUsername = prefs.getString("loggedInUsername", null);
+        }
+
+        // If no username is found, show error and exit
+        if (loggedInUsername == null || loggedInUsername.isEmpty()) {
+            Toast.makeText(this, "Error: No logged-in user found", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        initializeViews();
+        setupListeners();
+        displayStudentInfo();
+    }
+
+    private void initializeViews() {
+        dbHelper = new DatabaseHelper(this);
         tvStudentInfo = findViewById(R.id.tvStudentInfo);
         btnGoToSetBudget = findViewById(R.id.btnGoToSetBudget);
         btnLogoutToMain = findViewById(R.id.btnLogoutToMain);
+    }
 
-        // Load student data
-        loadStudentData();
-
-        // Set button listeners
-        btnGoToSetBudget.setOnClickListener(v -> {
-            Intent intent = new Intent(ViewActivity.this, SetBudgetActivity.class);
+    private void setupListeners() {
+        btnGoToSetBudget.setOnClickListener(view -> {
+            Intent intent = new Intent(ViewActivity.this, ViewExpenseActivity.class);
+            intent.putExtra("USERNAME", loggedInUsername); // Pass username if needed
             startActivity(intent);
         });
 
-        btnLogoutToMain.setOnClickListener(v -> {
+        btnLogoutToMain.setOnClickListener(view -> {
+            // Clear login state in SharedPreferences
+            SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+            prefs.edit().remove("loggedInUsername").apply();
+
             Intent intent = new Intent(ViewActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
@@ -46,33 +73,43 @@ public class ViewActivity extends AppCompatActivity {
         });
     }
 
-    private void loadStudentData() {
-        // Query to get student information
-        String query = "SELECT u." + DatabaseHelper.COL_USER_ID + ", u." + DatabaseHelper.COL_USERNAME + ", u." +
-                DatabaseHelper.COL_FULL_NAME + ", u." + DatabaseHelper.COL_EMAIL + ", u." + DatabaseHelper.COL_PHONE + ", u." +
-                DatabaseHelper.COL_STUDENT_ID + " FROM " + DatabaseHelper.USER_TABLE + " u" +
-                " INNER JOIN " + DatabaseHelper.STUDENT_TABLE + " s ON u." + DatabaseHelper.COL_USER_ID + " = s." +
-                DatabaseHelper.COL_USER_ID;
+    private void displayStudentInfo() {
+        String query = "SELECT u." + DatabaseHelper.COL_USER_ID + ", " +
+                "u." + DatabaseHelper.COL_USERNAME + ", " +
+                "u." + DatabaseHelper.COL_FULL_NAME + ", " +
+                "u." + DatabaseHelper.COL_EMAIL + ", " +
+                "u." + DatabaseHelper.COL_PHONE + ", " +
+                "u." + DatabaseHelper.COL_STUDENT_ID +
+                " FROM " + DatabaseHelper.USER_TABLE + " u" +
+                " INNER JOIN " + DatabaseHelper.STUDENT_TABLE + " s ON u." +
+                DatabaseHelper.COL_USER_ID + " = s." + DatabaseHelper.COL_USER_ID +
+                " WHERE u." + DatabaseHelper.COL_USERNAME + " = ?";
 
-        try (Cursor cursor = dbHelper.getReadableDatabase().rawQuery(query, null)) {
-            StringBuilder info = new StringBuilder();
-            if (cursor.moveToFirst()) {
-                do {
-                    info.append("User ID: ").append(cursor.getInt(0)).append("\n")
-                            .append("Username: ").append(cursor.getString(1)).append("\n")
-                            .append("Full Name: ").append(cursor.getString(2)).append("\n")
-                            .append("Email: ").append(cursor.getString(3)).append("\n")
-                            .append("Phone: ").append(cursor.getString(4)).append("\n")
-                            .append("Student ID: ").append(cursor.getString(5) != null ? cursor.getString(5) : "N/A").append("\n\n");
-                } while (cursor.moveToNext());
+        try (Cursor cursor = dbHelper.getReadableDatabase().rawQuery(query, new String[]{loggedInUsername})) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int userId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_USER_ID));
+                String username = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_USERNAME));
+                String fullName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_FULL_NAME));
+                String email = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_EMAIL));
+                String phone = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PHONE));
+                String studentId = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_STUDENT_ID));
+
+                StringBuilder info = new StringBuilder();
+                info.append("User ID: ").append(userId).append("\n")
+                        .append("Username: ").append(username).append("\n")
+                        .append("Full Name: ").append(fullName).append("\n")
+                        .append("Email: ").append(email).append("\n")
+                        .append("Phone: ").append(phone).append("\n")
+                        .append("Student ID: ").append(studentId != null ? studentId : "N/A");
+
                 tvStudentInfo.setText(info.toString());
             } else {
-                tvStudentInfo.setText("No students found");
-                Toast.makeText(this, "No student data available", Toast.LENGTH_SHORT).show();
+                tvStudentInfo.setText("No student information found for this user.");
+                Toast.makeText(this, "No data available for " + loggedInUsername, Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-            Toast.makeText(this, "Error retrieving student info: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             tvStudentInfo.setText("");
+            Toast.makeText(this, "Error retrieving data: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }

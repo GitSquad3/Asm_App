@@ -15,7 +15,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.Calendar;
 
-public class ViewExpenseActivity extends AppCompatActivity {
+public class
+ViewExpenseActivity extends AppCompatActivity {
 
         private DatabaseHelper dbHelper;
         private BudgetManager budgetManager;

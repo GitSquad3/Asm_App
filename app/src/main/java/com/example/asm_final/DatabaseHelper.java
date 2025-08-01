@@ -10,7 +10,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "CampusExpense.db";
     private static final int DATABASE_VERSION = 4;
 
-    // Đổi thành public để các lớp khác truy cập
+    // User table
     public static final String USER_TABLE = "User";
     public static final String COL_USER_ID = "user_id";
     public static final String COL_USERNAME = "username";
@@ -21,6 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_CREATED_AT = "created_at";
     public static final String COL_STUDENT_ID = "student_id";
 
+    // Student table
     public static final String STUDENT_TABLE = "Student";
     public static final String COL_STUDENT_TABLE_ID = "student_id";
 
@@ -67,7 +68,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_USER_ID + " INTEGER NOT NULL, " +
                 "FOREIGN KEY(" + COL_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COL_USER_ID + ") ON DELETE CASCADE)");
 
-        // Create Expense table
         String createExpenseTable = "CREATE TABLE " + EXPENSE_TABLE + " (" +
                 COL_EXPENSE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_USER_ID + " INTEGER NOT NULL, " +
@@ -79,7 +79,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY(" + COL_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COL_USER_ID + ") ON DELETE CASCADE)";
         db.execSQL(createExpenseTable);
 
-        // Create Budget table
         String createBudgetTable = "CREATE TABLE " + BUDGET_TABLE + " (" +
                 COL_BUDGET_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_USER_ID + " INTEGER NOT NULL, " +
@@ -90,7 +89,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "UNIQUE(" + COL_USER_ID + ", " + COL_BUDGET_MONTH + ", " + COL_BUDGET_YEAR + "))";
         db.execSQL(createBudgetTable);
 
-        // Thêm dữ liệu mẫu để kiểm tra
+        // Sample admin data
         ContentValues adminValues = new ContentValues();
         adminValues.put(COL_USERNAME, "admin");
         adminValues.put(COL_PASSWORD, "admin123");
@@ -104,7 +103,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.insert("Admin", null, adminRole);
         }
 
-        // Thêm sinh viên mẫu
+        // Sample student data
         ContentValues testValues = new ContentValues();
         testValues.put(COL_USERNAME, "testuser");
         testValues.put(COL_STUDENT_ID, "ST001");
@@ -118,15 +117,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             studentValues.put(COL_USER_ID, testUserId);
             db.insert(STUDENT_TABLE, null, studentValues);
 
-            // Add sample budget for test user
             ContentValues budgetValues = new ContentValues();
             budgetValues.put(COL_USER_ID, testUserId);
-            budgetValues.put(COL_BUDGET_AMOUNT, 1000000.0); // 1 million VND
+            budgetValues.put(COL_BUDGET_AMOUNT, 1000000.0);
             budgetValues.put(COL_BUDGET_MONTH, 12);
             budgetValues.put(COL_BUDGET_YEAR, 2024);
             db.insert(BUDGET_TABLE, null, budgetValues);
 
-            // Add sample expenses for test user
             String[] categories = {"Food", "Transport", "Books", "Entertainment", "Other"};
             String[] titles = {"Lunch", "Bus fare", "Textbook", "Movie", "Phone bill"};
             double[] amounts = {50000, 15000, 200000, 100000, 50000};
@@ -143,7 +140,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
     }
-
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -162,18 +158,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return conflictField;
         }
 
-        ContentValues values = new ContentValues();
-        values.put(COL_USERNAME, username);
-        values.put(COL_PASSWORD, password);
-        values.put(COL_FULL_NAME, fullName);
-        values.put(COL_EMAIL, email);
-        values.put(COL_PHONE, phone);
+        ContentValues userValues = new ContentValues();
+        userValues.put(COL_USERNAME, username);
+        userValues.put(COL_PASSWORD, password);
+        userValues.put(COL_FULL_NAME, fullName);
+        userValues.put(COL_EMAIL, email);
+        userValues.put(COL_PHONE, phone);
+        String studentId = "ST" + System.currentTimeMillis();
+        userValues.put(COL_STUDENT_ID, studentId);
 
+        db.beginTransaction();
         try {
-            long userId = db.insertOrThrow(USER_TABLE, null, values);
-            return userId != -1 ? "success" : "error";
+            long userId = db.insertOrThrow(USER_TABLE, null, userValues);
+            if (userId != -1) {
+                ContentValues studentValues = new ContentValues();
+                studentValues.put(COL_USER_ID, userId);
+                long result = db.insert(STUDENT_TABLE, null, studentValues);
+                if (result != -1) {
+                    db.setTransactionSuccessful();
+                    return "success";
+                }
+            }
+            return "error";
         } catch (Exception e) {
             return "error";
+        } finally {
+            db.endTransaction();
         }
     }
 
@@ -193,17 +203,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         userValues.put(COL_EMAIL, email);
         userValues.put(COL_PHONE, phone);
 
+        db.beginTransaction();
         try {
             long userId = db.insertOrThrow(USER_TABLE, null, userValues);
             if (userId != -1) {
                 ContentValues studentValues = new ContentValues();
                 studentValues.put(COL_USER_ID, userId);
                 long result = db.insert(STUDENT_TABLE, null, studentValues);
-                return result != -1 ? "success" : "error";
+                if (result != -1) {
+                    db.setTransactionSuccessful();
+                    return "success";
+                }
             }
             return "error";
         } catch (Exception e) {
             return "error";
+        } finally {
+            db.endTransaction();
         }
     }
 
@@ -300,6 +316,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return cursor.moveToFirst();
         }
     }
+
     public boolean setBudget(int userId, double amount, int month, int year) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -309,7 +326,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_BUDGET_YEAR, year);
 
         try {
-            // Use INSERT OR REPLACE to handle unique constraint
             long result = db.insertWithOnConflict(BUDGET_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
             return result != -1;
         } catch (Exception e) {
@@ -329,7 +345,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    // Expense methods
     public boolean addExpense(int userId, String title, double amount, String category, String date, String description) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();

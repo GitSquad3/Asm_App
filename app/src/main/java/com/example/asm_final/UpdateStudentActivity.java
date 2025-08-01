@@ -29,10 +29,8 @@ public class UpdateStudentActivity extends AppCompatActivity {
         btnUpdate = findViewById(R.id.btnUpdate);
         db = new DatabaseHelper(this);
 
-        // Set search button listener
+        // Set listeners
         btnSearch.setOnClickListener(v -> searchStudent());
-
-        // Set update button listener
         btnUpdate.setOnClickListener(v -> attemptUpdateStudent());
     }
 
@@ -43,25 +41,29 @@ public class UpdateStudentActivity extends AppCompatActivity {
             return;
         }
 
-        // Query database for student details
         Cursor cursor = db.getAllStudents();
         boolean found = false;
-        if (cursor.moveToFirst()) {
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DatabaseHelper.COL_STUDENT_ID);
+            int usernameIndex = cursor.getColumnIndex(DatabaseHelper.COL_USERNAME);
+            int fullNameIndex = cursor.getColumnIndex(DatabaseHelper.COL_FULL_NAME);
+            int emailIndex = cursor.getColumnIndex(DatabaseHelper.COL_EMAIL);
+            int phoneIndex = cursor.getColumnIndex(DatabaseHelper.COL_PHONE);
+
             do {
-                String dbStudentId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_STUDENT_ID));
-                System.out.println("Searching: " + studentId + " | Found: " + dbStudentId);
-                if (dbStudentId != null && dbStudentId.equals(studentId)) {
-                    etUsername.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_USERNAME)));
-                    etFullName.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_FULL_NAME)));
-                    etEmail.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_EMAIL)));
-                    etPhone.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_PHONE)));
+                if (idIndex != -1 && studentId.equals(cursor.getString(idIndex))) {
+                    etUsername.setText(usernameIndex != -1 ? cursor.getString(usernameIndex) : "");
+                    etFullName.setText(fullNameIndex != -1 ? cursor.getString(fullNameIndex) : "");
+                    etEmail.setText(emailIndex != -1 ? cursor.getString(emailIndex) : "");
+                    etPhone.setText(phoneIndex != -1 ? cursor.getString(phoneIndex) : "");
                     enableInputFields(true);
                     found = true;
                     break;
                 }
             } while (cursor.moveToNext());
+            cursor.close();
         }
-        cursor.close();
 
         if (!found) {
             showToast("Student ID not found");
@@ -76,20 +78,17 @@ public class UpdateStudentActivity extends AppCompatActivity {
         String newEmail = etEmail.getText().toString().trim();
         String newPhone = etPhone.getText().toString().trim();
 
-        // Validate empty fields
         if (newFullName.isEmpty() || newEmail.isEmpty() || newPhone.isEmpty()) {
             showToast("Please fill in all fields");
             return;
         }
 
-        // Validate email format
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
             showToast("Please enter a valid email address");
             etEmail.requestFocus();
             return;
         }
 
-        // Normalize and validate phone number
         newPhone = normalizePhoneNumber(newPhone);
         if (!isValidVietnamesePhone(newPhone)) {
             showToast("Please enter a valid Vietnamese phone number");
@@ -97,7 +96,6 @@ public class UpdateStudentActivity extends AppCompatActivity {
             return;
         }
 
-        // Attempt to update student
         boolean success = db.updateStudent(oldUsername, oldUsername, newFullName, newEmail, newPhone);
         if (success) {
             showToast("Student updated successfully!");
@@ -120,11 +118,11 @@ public class UpdateStudentActivity extends AppCompatActivity {
     }
 
     private boolean isValidVietnamesePhone(String phone) {
-        return phone.matches("^\\+84(90|91|92|93|94|95|96|97|98|99|3[2-9]|5[6-9]|7[0|6-9]|8[1-9])\\d{7}$");
+        return phone.matches("^\\+84(90|91|92|93|94|95|96|97|98|99|3[2-9]|5[6-9]|7[06-9]|8[1-9])\\d{7}$");
     }
 
     private void enableInputFields(boolean enable) {
-        etUsername.setEnabled(false); // Username remains read-only
+        etUsername.setEnabled(false); // Username is read-only
         etFullName.setEnabled(enable);
         etEmail.setEnabled(enable);
         etPhone.setEnabled(enable);
