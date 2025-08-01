@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=" Add New Expense"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#E91E63"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Title:"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/etExpenseTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/edit_text_background"
+        android:hint="Enter expense title"
+        android:padding="12dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Amount (VND):"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/etExpenseAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter amount"
+        android:inputType="numberDecimal"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Category:"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/spinnerExpenseCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/spinner_background"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Date:"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnExpenseDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Date"
+        android:backgroundTint="#2196F3"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Description (Optional):"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/etExpenseDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter description"
+        android:inputType="textMultiLine"
+        android:minLines="2"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp" />
+
+</LinearLayout>

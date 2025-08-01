@@ -1,0 +1,97 @@
+[33mcommit 89c2c395704f29348f8c5a533ce784b4971b3bee[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mbranch#1[m[33m)[m
+Author: Trần Văn Thành <tt6220389@gmail.com>
+Date:   Wed Jul 30 09:30:43 2025 +0700
+
+    done
+    
+    don
+
+[33mcommit fa141564eae0bfc2bbd991d16adbbe057e003e2c[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:04:52 2025 +0700
+
+    Add files via upload
+
+[33mcommit 85359375abf35df08d0281bedb1649def0374153[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:02:52 2025 +0700
+
+    Delete settings.gradle.kts
+
+[33mcommit 9f54fbdc2c8c968ee1316da9a157ccf9c36b086e[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:02:14 2025 +0700
+
+    Delete local.properties
+
+[33mcommit 4f6e74ec50d13b1fd8b5b42d0d3f8daa208e403e[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:02:07 2025 +0700
+
+    Delete gradlew
+
+[33mcommit f22e2f0c9dd3fb9492a1099340eed52fb4e431c1[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:01:59 2025 +0700
+
+    Delete gradlew.bat
+
+[33mcommit a7ba4475f58d670d12f21781202f217787911d79[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:01:47 2025 +0700
+
+    Delete gradle.properties
+
+[33mcommit 53896f82c035b165156be6cccda4367a6ab6d2b2[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:01:39 2025 +0700
+
+    Delete build.gradle.kts
+
+[33mcommit c430bbd12470d2e02d69d3c4edc59e2cde8ab090[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:01:31 2025 +0700
+
+    Delete .gitignore
+
+[33mcommit bc1c9b30b88a1bb8ce95f81ced35428d3bc5842c[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:01:24 2025 +0700
+
+    Delete README.md
+
+[33mcommit 97ffe17a936c9d6949b8e60cfacc57a416c82a29[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:01:01 2025 +0700
+
+    Delete gradle directory
+
+[33mcommit a8759423298069f78f815b887d4992c1b439897b[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 09:00:40 2025 +0700
+
+    Delete app directory
+
+[33mcommit ae3917eead2bc8b07575510605a8be4ff4befa97[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 08:59:21 2025 +0700
+
+    Add files via upload
+
+[33mcommit 211138e1918a8ed38730dfab2b64acee5643a368[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 08:55:58 2025 +0700
+
+    Delete ASM_FINAL directory
+
+[33mcommit 247d1734492523de53e41cba645e68a58bf50d4c[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 08:54:55 2025 +0700
+
+    Add files via upload
+
+[33mcommit e03b020b979c3cb00ce9133669da6ddf28f04948[m
+Author: Trần Văn Thành <165667230+thanhye@users.noreply.github.com>
+Date:   Wed Jul 30 08:22:21 2025 +0700
+
+    Initial commit
