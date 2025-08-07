@@ -435,4 +435,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return -1;
         }
     }
+    public Cursor getExpenseById(int expenseId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + EXPENSE_TABLE + " WHERE " + COL_EXPENSE_ID + " = ?";
+        return db.rawQuery(query, new String[]{String.valueOf(expenseId)});
+    }
+
+    public boolean updateExpense(int expenseId, String title, double amount, String category, String date, String description) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_EXPENSE_TITLE, title);
+        values.put(COL_EXPENSE_AMOUNT, amount);
+        values.put(COL_EXPENSE_CATEGORY, category);
+        values.put(COL_EXPENSE_DATE, date);
+        values.put(COL_EXPENSE_DESCRIPTION, description);
+
+        try {
+            int rowsAffected = db.update(EXPENSE_TABLE, values, COL_EXPENSE_ID + " = ?", new String[]{String.valueOf(expenseId)});
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean deleteExpense(int expenseId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            int rowsAffected = db.delete(EXPENSE_TABLE, COL_EXPENSE_ID + " = ?", new String[]{String.valueOf(expenseId)});
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

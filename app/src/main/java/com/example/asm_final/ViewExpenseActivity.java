@@ -6,8 +6,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -47,6 +49,35 @@ ViewExpenseActivity extends AppCompatActivity {
             loadData();
         }
 
+    private void setupListeners() {
+        btnSetBudget.setOnClickListener(v -> budgetManager.showSetBudgetDialog());
+        btnViewReports.setOnClickListener(v -> reportManager.showSpendingReports());
+        btnAddExpense.setOnClickListener(v -> expenseManager.showAddExpenseDialog());
+        btnSortExpenses.setOnClickListener(v -> sortExpenses());
+        // Thêm listener cho sự kiện nhấn giữ trên ListView
+        lvExpenses.setOnItemLongClickListener((parent, view, position, id) -> {
+            // Lấy ExpenseDisplayItem từ adapter
+            ExpenseManager.ExpenseDisplayItem selectedItem = (ExpenseManager.ExpenseDisplayItem) parent.getItemAtPosition(position);
+            if (selectedItem != null) {
+                showExpenseOptionsDialog(selectedItem.id);
+            }
+            return true; // Trả về true để tiêu thụ sự kiện nhấn giữ
+        });
+    }
+    private void showExpenseOptionsDialog(int expenseId) {
+        final CharSequence[] options = {"Edit", "Delete"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Expense Options");
+        builder.setItems(options, (dialog, item) -> {
+            if (options[item].equals("Edit")) {
+                expenseManager.showEditExpenseDialog(expenseId);
+            } else if (options[item].equals("Delete")) {
+                expenseManager.showDeleteExpenseConfirmation(expenseId);
+            }
+        });
+        builder.show();
+    }
+
         private void initializeManagers() {
             dbHelper = new DatabaseHelper(this);
             budgetManager = new BudgetManager(this, currentUserId);
@@ -77,14 +108,6 @@ ViewExpenseActivity extends AppCompatActivity {
             sortAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerSortBy.setAdapter(sortAdapter);
         }
-
-        private void setupListeners() {
-            btnSetBudget.setOnClickListener(v -> budgetManager.showSetBudgetDialog());
-            btnViewReports.setOnClickListener(v -> reportManager.showSpendingReports());
-            btnAddExpense.setOnClickListener(v -> expenseManager.showAddExpenseDialog());
-            btnSortExpenses.setOnClickListener(v -> sortExpenses());
-        }
-
         public void loadData() {
             updateBudgetInfo();
             loadExpenses();
